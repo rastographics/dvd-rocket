@@ -8,3 +8,7 @@ We needed a way to automate the conversion of those recordings to Ready-to-burn 
 
 These scripts run with one click.
 
+# Instructions 
+1. Copy your .mov file into the root folder.
+2. Right-click on `ConvertToDVD.ps1` and choose Run Powershell Script
+3. DVD video files will be created in the DVD-OUTPUT folder.
