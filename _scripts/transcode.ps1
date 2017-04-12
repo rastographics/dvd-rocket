@@ -6,18 +6,30 @@ $ffprobe = "bin\ffprobe.exe"
 $isTest = $FALSE
 
 #Split this input file into segments to utilize more CPU power on multi-core machines. (Optimal # on i7 cpu is 5 or 6)
-$segmentsCount = 5 
+$segmentsCount = 4 
 
 #Set this to 0 to encode the entire file (normal operation)
 $onlyEncodeFirstN = 0 # ONLY ENCODE THE FIRST ___ SECONDS OF VIDEO from the input file. 
 
 $enableDenoiseFilter = $TRUE
 
+#**************************************************************************************
+# DO NOT CHANGE ANYTHING BELOW THIS LINE
+
+
+
+
+IF(Test-Path $outputDirectory){
+    Remove-Item -Recurse -Force $outputDirectory 
+}
+
 $inputVideoFile = Get-ChildItem  -Filter *.mov | Select-Object -First 1 
 
 $strFileName = $inputVideoFile.Name
 
 $probeArgs = " -i ""$strFileName"" -show_format" # | grep duration"
+
+
 
 #Transcode times (SD w/ denoise)
 # Combined rates of all processes, after running for 30 seconds:
