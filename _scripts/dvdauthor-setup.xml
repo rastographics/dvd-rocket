@@ -1,0 +1,24 @@
+<dvdauthor>
+    <vmgm>
+     <!--<fpc>jump title 1;</fpc>-->
+        <!--<menus>
+            <pgc>
+                <button>jump title 1;</button>
+                <vob file="menu.m2v" pause="inf" />
+            </pgc>
+        </menus>-->
+    </vmgm>
+    <titleset>
+    
+        <titles>
+            <video format="ntsc" aspect="16:9" />
+            <pgc>
+                <vob file="_temp\captured-transcoded-part1.mpg" />
+                 <vob file="_temp\captured-transcoded-part2.mpg" />
+                  <vob file="_temp\captured-transcoded-part3.mpg" />
+                   <vob file="_temp\captured-transcoded-part4.mpg" />
+                    <vob file="_temp\captured-transcoded-part5.mpg" />
+            </pgc>
+        </titles>
+    </titleset>
+</dvdauthor>

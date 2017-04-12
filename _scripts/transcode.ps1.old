@@ -1,0 +1,15 @@
+#$movDirectory = (get-item $PSScriptRoot).Parent
+$strTemp = "E:\_transcoding\_temp"
+$movFile = Get-ChildItem  -Filter *.mov | Select-Object -First 1 
+
+$strFileName = $movFile.Name
+
+IF(!(Test-Path $strTemp)){
+  #  Remove-Item -Recurse -Force $strFolderName 
+  New-Item $strTemp -ItemType Directory
+}
+
+& "bin\ffmpeg.exe" -i $strFileName -aspect "16:9" -threads 8  -target "ntsc-dvd" -y  "$strTemp\captured-transcoded.mpg"
+
+# -t '00:00:30' #this will transcode only first 30 seconds of the file
+# -minrate 1000k -maxrate 1000k -bufsize 1835k
