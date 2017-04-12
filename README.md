@@ -12,3 +12,9 @@ These scripts run with one click.
 1. Copy your .mov file into the root folder.
 2. Right-click on `ConvertToDVD.ps1` and choose Run Powershell Script
 3. DVD video files will be created in the DVD-OUTPUT folder.
+
+
+
+#Resources:
+
+[Creating DVD VIdeo with Linux](https://radagast.ca/linux/dvd_authoring/dvd_authoring.html)

@@ -88,10 +88,14 @@ For ($i=0; $i -lt $segmentsCount; $i++){
   $segmentDuration = $segmentLength
   if($i -eq ($segmentsCount - 1))
   {
-    $segmentDuration = $segmentLength + $durRemainder
+    $segmentDuration = 0;# $segmentLength + $durRemainder
   }
   $outputFilePath = "$outputDirectory\$outputFilePrefix-part$partNumber.mpg"
-  $segmentOption = "-ss $segmentStart -t $segmentDuration " + $baseOptions + """$outputFilePath""";
+  $segmentOption = " -ss $segmentStart"
+  if($segmentDuration){
+    $segmentOption += " -t $segmentDuration"
+  }  
+  $segmentOption += $baseOptions + """$outputFilePath""";
   $segmentArray += @{
     options = $segmentOption
     partNumber = $partNumber
@@ -120,9 +124,12 @@ $xml.WriteStartElement("dvdauthor")
       $xml.WriteAttributeString("aspect","16:9")
     $xml.WriteEndElement()
     $xml.WriteStartElement("pgc")
-    $segmentArray |foreach {
+    $segmentArray | foreach {
       $xml.WriteStartElement("vob")
       $xml.WriteAttributeString("file",$_.get_item("outputFilePath"))
+      # if($_.get_item("partNumber") -eq 1){
+      #   $xml.WriteAttributeString("chapters","0")
+      # }
       $xml.WriteEndElement()
     }
     $xml.WriteEndElement()

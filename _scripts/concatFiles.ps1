@@ -1,8 +1,7 @@
 $sourceDir = "_transcoding"
 $ffmpeg = "bin\ffmpeg.exe "
 
-$filesToConcat = Get-ChildItem $sourceDir -Filter *.mpg | foreach-object {$_.FullName}
+$filesToConcat = Get-ChildItem $sourceDir -Filter *.mpg | foreach-object { "$sourceDir\$($_.Name)"}
 $filesStr = $filesToConcat -join "|"
 
-$concatArgs = "-i ""concat:$filesStr"" -c copy $sourceDir\transcoded-FULL.mpg"
-& $ffmpeg -i "concat:$filesStr" -c copy "$sourceDir\transcoded-FULL.mpg"
+& $ffmpeg -i "concat:$filesStr" -c copy -target ntsc-dvd -y "$sourceDir\transcoded-FULL.mpg"
