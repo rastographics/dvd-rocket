@@ -6,6 +6,12 @@ $ffprobe = "bin\ffprobe.exe"
 
 $isTest = $FALSE
 
+#Split this input file into segments to utilize more CPU power on multi-core machines. (Optimal # on i7 cpu is 5 or 6)
+$segmentsCount = 5 
+
+#Set this to 0 to encode the entire file (normal operation)
+$onlyEncodeFirstN = 60 # ONLY ENCODE THE FIRST ___ SECONDS OF VIDEO from the input file. 
+
 $enableDenoiseFilter = $TRUE
 
 $inputVideoFile = Get-ChildItem  -Filter *.mov | Select-Object -First 1 
@@ -42,12 +48,15 @@ $probeArgs = " -i ""$strFileName"" -show_format" # | grep duration"
 
 
 
-$segmentsCount = 5 #Split this input file into segments to utilize more CPU power on multi-core machines. (Optimal # on i7 cpu is 5 or 6)
+
 #$fileLength = Start-Process $ffprobe $probeArgs -NoNewWindow -Wait
 $command = $ffprobe + $probeArgs
 $fileProperties = Invoke-Expression $command
 $durationObj = @($fileProperties) -match 'duration=*'  #substring this after the equals sign, convert to decimal, and then divide by # of segments
 $durationTotal = [decimal]$durationObj[0].Replace("duration=","")
+if($onlyEncodeFirstN){
+  $durationTotal = $onlyEncodeFirstN
+}
 $segmentLength = [Math]::Floor($durationTotal / $segmentsCount) 
 
 #The remainder will be added to the last (or first) segment
@@ -127,7 +136,7 @@ $xml.Close()
 
 
 $segmentArray | foreach {
-  Start-Process $ffmpeg $_
+  Start-Process $ffmpeg $_.get_item("options")
 }
 
 
