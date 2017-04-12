@@ -1,5 +1,6 @@
 #$movDirectory = (get-item $PSScriptRoot).Parent
-$outputDirectory = "_transcoding\_temp"
+$outputDirectory = "_transcoding"
+$outputFilePrefix = "transcoded"
 $ffmpeg = "bin\ffmpeg.exe"
 $ffprobe = "bin\ffprobe.exe"
 
@@ -20,6 +21,26 @@ $probeArgs = " -i ""$strFileName"" -show_format" # | grep duration"
 # i5 @ 3 segments = 9.87x (3.2x + 3.34x + 3.33x)
 # i5 @ 4 segments = 10x (2.4x + 2.6x + 2.4x + 2.6x)  #after 1 min 2.65 2.7 2.6 2.6 (10.55x)
 # i5 @ 5 segments = 9.1x (1.6 1.7 1.9 2.0 1.9)
+
+#i7 3.7, 3.5, 3.8, 3.9 || 3.97, 3.83, 3.65, 3.7
+#i7 3.55, 3.18, 3.22, 3.23, 3.18 || 3.63, 3.31, 3.35, 3.29, 3.28
+#i7 6 segments @ 30sec = 17.4x (3.15, 2.87, 2.88, 2.75, 2.87, 2.88)
+#i7: 6 segments @ 1min = 17.76x (3.26, 2.9, 2.96, 2.83, 2.89, 2.92)
+#i7: 7 segments @ 1min = 18.17x (2.55, 2.54, 2.58, 2.55 2.48 2.51 2.96)
+
+
+# REALTIME TEST - actual time measured for 50min 11sec input file: **************
+
+#** WITH DENOISE
+#i7: 6 segments = 17.2x @ 2:55
+#i7: 7 segments = 18.02x @ 2:47
+#i7: 8 segments = 18.02x @ 2:47
+
+# **DENOISE DISABLED
+#i7: 7 segments = 20.76x @ 2:25
+
+
+
 
 $segmentsCount = 5 #Split this input file into segments to utilize more CPU power on multi-core machines. (Optimal # on i7 cpu is 5 or 6)
 #$fileLength = Start-Process $ffprobe $probeArgs -NoNewWindow -Wait
@@ -60,28 +81,14 @@ For ($i=0; $i -lt $segmentsCount; $i++){
   {
     $segmentDuration = $segmentLength + $durRemainder
   }
-  $segmentOption = "-ss $segmentStart -t $segmentDuration " + $baseOptions + "$outputDirectory\captured-transcoded-part$partNumber.mpg";
-  $segmentArray += $segmentOption
+  $outputFilePath = "$outputDirectory\$outputFilePrefix-part$partNumber.mpg"
+  $segmentOption = "-ss $segmentStart -t $segmentDuration " + $baseOptions + """$outputFilePath""";
+  $segmentArray += @{
+    options = $segmentOption
+    partNumber = $partNumber
+    outputFilePath = $outputFilePath
+  }
 }
-#2. Create an array of arguments with number of elements that matches the number of segments, each one:
-  #A. Seeks to (StartofPrevSegment + Duration): -ss 
-  #B. Sets duration to length specified above: -t
-  #c: increments the filename by 1: -part2.mpg
-
-#3. Start it up and run Start-Process for every array item
-
-#4. Create a dvdauthor.xml file that has the same number of vob entries as we have number of segments.
-
-
-
-# $options = " -t 00:10:00 " + $baseOptions + "  $outputDirectory\captured-transcoded"
-
-# $part1Options = "-ss 00:00:00 " + $options + "-part1.mpg";
-# $part2Options = "-ss 00:10:00 " + $options + "-part2.mpg";
-# $part3Options = "-ss 00:20:00 " + $options + "-part3.mpg";
-# $part4Options = "-ss 00:30:00 " + $options + "-part4.mpg";
-# $part5Options = "-ss 00:40:00 " + $options + "-part5.mpg";
-# $part6Options = "-ss 00:50:00 " + $options + "-part6.mpg";
 
 
 #If the temp directory doesnt exist, create it. (TODO: clean the directory if it does already exist?)
@@ -90,21 +97,40 @@ IF(!(Test-Path $outputDirectory)){
   New-Item $outputDirectory -ItemType Directory
 }
 
+$filepath = "$outputDirectory\dvd.xml"
+$xml = New-Object System.Xml.XmlTextWriter($filePath,$Null)
+$xml.Formatting = "Indented"
+$xml.Indentation = "4"
+$xml.WriteStartDocument()
+$xml.WriteStartElement("dvdauthor")
+  $xml.WriteElementString("vmgm","")
+  $xml.WriteStartElement("titleset")
+    $xml.WriteStartElement("titles")
+    $xml.WriteStartElement("video")
+      $xml.WriteAttributeString("format","ntsc")
+      $xml.WriteAttributeString("aspect","16:9")
+    $xml.WriteEndElement()
+    $xml.WriteStartElement("pgc")
+    $segmentArray |foreach {
+      $xml.WriteStartElement("vob")
+      $xml.WriteAttributeString("file",$_.get_item("outputFilePath"))
+      $xml.WriteEndElement()
+    }
+    $xml.WriteEndElement()
+  $xml.WriteEndElement()
+$xml.WriteEndElement()
+$xml.WriteEndDocument()
+# $xml.Finalize()
+$xml.Flush()
+$xml.Close()
+
+
+
 $segmentArray | foreach {
   Start-Process $ffmpeg $_
 }
 
 
-# If (!$isTest)
-# {
-#   Start-Process $ffmpeg $part1Options
-# Start-Process $ffmpeg $part2Options
-# Start-Process $ffmpeg $part3Options
-# Start-Process $ffmpeg $part4Options
-# Start-Process $ffmpeg $part5Options
-# } else {
-#   Start-Process $ffmpeg $baseOptions
-# }
 
 
 # -t '00:00:30' #this will transcode only first 30 seconds of the file
