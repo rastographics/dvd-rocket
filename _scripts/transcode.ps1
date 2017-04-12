@@ -3,14 +3,13 @@ $outputDirectory = "_transcoding"
 $outputFilePrefix = "transcoded"
 $ffmpeg = "bin\ffmpeg.exe"
 $ffprobe = "bin\ffprobe.exe"
-
 $isTest = $FALSE
 
 #Split this input file into segments to utilize more CPU power on multi-core machines. (Optimal # on i7 cpu is 5 or 6)
 $segmentsCount = 5 
 
 #Set this to 0 to encode the entire file (normal operation)
-$onlyEncodeFirstN = 60 # ONLY ENCODE THE FIRST ___ SECONDS OF VIDEO from the input file. 
+$onlyEncodeFirstN = 0 # ONLY ENCODE THE FIRST ___ SECONDS OF VIDEO from the input file. 
 
 $enableDenoiseFilter = $TRUE
 
@@ -86,9 +85,11 @@ For ($i=0; $i -lt $segmentsCount; $i++){
   $partNumber = $i + 1;
   $segmentStart = $segmentLength * $i
   $segmentDuration = $segmentLength
-  if($i -eq ($segmentsCount - 1))
+  if($i -eq ($segmentsCount - 1) -and -not $onlyEncodeFirstN)
   {
+    #If this is the last segment, then don't limit the diration (go to end of file)
     $segmentDuration = 0;# $segmentLength + $durRemainder
+    #except, if $onlyEncodeFirstN has a value, then make sure we cut off 
   }
   $outputFilePath = "$outputDirectory\$outputFilePrefix-part$partNumber.mpg"
   $segmentOption = " -ss $segmentStart"
@@ -146,8 +147,7 @@ $segmentArray | foreach {
   Start-Process $ffmpeg $_.get_item("options")
 }
 
-
-
+Wait-Process -name "ffmpeg"
 
 # -t '00:00:30' #this will transcode only first 30 seconds of the file
 # -minrate 1000k -maxrate 1000k -bufsize 1835k
