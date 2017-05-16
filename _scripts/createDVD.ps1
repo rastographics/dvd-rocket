@@ -1,4 +1,4 @@
-param ($outputFolder) 
+param ($outputFolder,$tempFolder) 
 
 $outputFolder = Join-Path -Path $outputFolder -childPath '\DVD_OUTPUT'
 
@@ -8,4 +8,4 @@ IF(Test-Path $outputFolder){
 New-Item -ItemType Directory -Force -Path $outputFolder
 
 [Environment]::SetEnvironmentVariable("VIDEO_FORMAT", "NTSC", "User")
-& "bin\dvdauthor.exe" -o $outputFolder -x "_transcoding\dvd.xml"
+& "bin\dvdauthor.exe" -o $outputFolder -x "$tempFolder\dvd.xml"

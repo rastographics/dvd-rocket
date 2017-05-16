@@ -1,11 +1,14 @@
 Param(
   [string]$inputFile,
+  [string]$tempFolder,
   [int]$segmentsCount
   )
 #$movDirectory = (get-item $PSScriptRoot).Parent
 # Import-Module .\_scripts\OpenFileDialog.psm1 -Force
 
-$outputDirectory = "_transcoding"
+# TODO: Do all temp writing to a .temp subdirectory in the OUTPUT folder!!! (don't use the folder where script is located)
+
+$outputDirectory = $tempFolder
 $outputFilePrefix = "transcoded"
 $ffmpeg = "bin\ffmpeg.exe"
 $ffprobe = "bin\ffprobe.exe"

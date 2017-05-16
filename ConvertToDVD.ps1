@@ -20,12 +20,16 @@ If(!$inputFile){
 $outputFolder = Get-Folder
 If(!$outputFolder){
   exit
+} else {
+  $tempFolder = Join-Path -Path $outputFolder -childPath '\.temp'
 }
+
+
 
 if(!$segments){
   $segments = 4
 }
 
-& .\_scripts\transcode.ps1 -inputFile $inputFile -segmentsCount $segments
+& .\_scripts\transcode.ps1 -inputFile $inputFile -tempFolder $tempFolder -segmentsCount $segments
 # & .\_scripts\concatFiles.ps1 
-& .\_scripts\createDVD.ps1 -outputFolder $outputFolder
+& .\_scripts\createDVD.ps1 -outputFolder $outputFolder -tempFolder $tempFolder
