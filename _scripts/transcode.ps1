@@ -1,5 +1,6 @@
+param ($inputFile)
 #$movDirectory = (get-item $PSScriptRoot).Parent
-Import-Module .\_scripts\OpenFileDialog.psm1 -Force
+# Import-Module .\_scripts\OpenFileDialog.psm1 -Force
 
 $outputDirectory = "_transcoding"
 $outputFilePrefix = "transcoded"
@@ -25,11 +26,9 @@ IF(Test-Path $outputDirectory){
     Remove-Item -Recurse -Force $outputDirectory 
 }
 
-$strFileName = Open-FileDialog "\\dvr-win10\video" "MOV (*.mov)| *.mov"
 
-If(!$strFileName){ 
-  exit 
-}
+$strFileName = $inputFile
+
 
 # $inputVideoFile = Get-ChildItem  -Filter *.mov | Select-Object -First 1 
 
