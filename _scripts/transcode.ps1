@@ -1,4 +1,7 @@
-param ($inputFile)
+Param(
+  [string]$inputFile,
+  [int]$segmentsCount
+  )
 #$movDirectory = (get-item $PSScriptRoot).Parent
 # Import-Module .\_scripts\OpenFileDialog.psm1 -Force
 
@@ -9,7 +12,11 @@ $ffprobe = "bin\ffprobe.exe"
 $isTest = $FALSE
 
 #Split this input file into segments to utilize more CPU power on multi-core machines. (Optimal # on i7 cpu is 5 or 6)
-$segmentsCount = 4 
+
+if(!$segmentsCount)
+{
+  $segmentsCount = 1;
+}
 
 #Set this to 0 to encode the entire file (normal operation)
 $onlyEncodeFirstN = 0 # ONLY ENCODE THE FIRST ___ SECONDS OF VIDEO from the input file. 

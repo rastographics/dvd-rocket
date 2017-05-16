@@ -1,6 +1,6 @@
 param ($outputFolder) 
 
-$outputFolder += 'DVD_OUTPUT'
+$outputFolder = Join-Path -Path $outputFolder -childPath '\DVD_OUTPUT'
 
 IF(Test-Path $outputFolder){
     Remove-Item -Recurse -Force $outputFolder 

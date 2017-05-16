@@ -10,6 +10,6 @@ If(!$outputFolder){
   exit
 }
 
-& .\_scripts\transcode.ps1 -inputFile $inputFile
-#& .\_scripts\concatFiles.ps1 
+& .\_scripts\transcode.ps1 -inputFile $inputFile -segmentsCount 4
+# & .\_scripts\concatFiles.ps1 
 & .\_scripts\createDVD.ps1 -outputFolder $outputFolder
