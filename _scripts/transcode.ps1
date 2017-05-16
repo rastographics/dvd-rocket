@@ -1,4 +1,6 @@
 #$movDirectory = (get-item $PSScriptRoot).Parent
+Import-Module .\_scripts\OpenFileDialog.psm1 -Force
+
 $outputDirectory = "_transcoding"
 $outputFilePrefix = "transcoded"
 $ffmpeg = "bin\ffmpeg.exe"
@@ -23,9 +25,15 @@ IF(Test-Path $outputDirectory){
     Remove-Item -Recurse -Force $outputDirectory 
 }
 
-$inputVideoFile = Get-ChildItem  -Filter *.mov | Select-Object -First 1 
+$strFileName = Open-FileDialog "\\dvr-win10\video" "MOV (*.mov)| *.mov"
 
-$strFileName = $inputVideoFile.Name
+If(!$strFileName){ 
+  exit 
+}
+
+# $inputVideoFile = Get-ChildItem  -Filter *.mov | Select-Object -First 1 
+
+# $strFileName = $inputVideoFile.Name
 
 $probeArgs = " -i ""$strFileName"" -show_format" # | grep duration"
 
